@@ -27,7 +27,15 @@
   .sidebar-label { font-size: 0.55rem; color: var(--muted); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 0.25rem; }
   .suggestion { font-size: 0.7rem; color: var(--muted2); padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: 2px; cursor: pointer; transition: all 0.15s; line-height: 1.4; }
   .suggestion:hover { border-color: var(--accent2); color: var(--accent); background: rgba(232,213,176,0.04); }
-  .sidebar-footer { margin-top: auto; font-size: 0.55rem; color: var(--muted); line-height: 1.6; letter-spacing: 0.03em; }
+  .api-section { margin-top: auto; }
+  .api-input-wrap { display: flex; flex-direction: column; gap: 0.5rem; }
+  .api-input { background: var(--surface); border: 1px solid var(--border2); color: var(--text); font-family: var(--mono); font-size: 0.65rem; padding: 0.5rem 0.75rem; border-radius: 2px; outline: none; transition: border-color 0.15s; letter-spacing: 0.05em; }
+  .api-input::placeholder { color: var(--muted2); }
+  .api-input:focus { border-color: var(--accent2); }
+  .api-note { font-size: 0.55rem; color: var(--muted); line-height: 1.5; letter-spacing: 0.03em; }
+  .api-status { font-size: 0.6rem; display: flex; align-items: center; gap: 0.4rem; }
+  .status-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--muted2); }
+  .status-dot.ready { background: var(--green); }
   .main-header { border-bottom: 1px solid var(--border); padding: 1.5rem 2rem; display: flex; align-items: center; justify-content: space-between; }
   .main-title { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; }
   .model-badge { font-size: 0.6rem; color: var(--muted); padding: 0.2rem 0.5rem; border: 1px solid var(--border2); border-radius: 2px; letter-spacing: 0.08em; }
@@ -90,21 +98,29 @@
       <div class="suggestion" onclick="ask(this)">What makes this portfolio different from typical engineering portfolios?</div>
     </div>
     <div class="divider"></div>
-    <div class="sidebar-footer">
-      Powered by OpenRouter · No login required · Ask anything about Brian's engineering portfolio and strategy documents.
+    <div class="api-section">
+      <div class="sidebar-label" style="margin-bottom:0.5rem">Anthropic API key</div>
+      <div class="api-input-wrap">
+        <input type="password" class="api-input" id="api-key" placeholder="sk-ant-..." oninput="updateStatus()" autocomplete="off" />
+        <div class="api-status">
+          <div class="status-dot" id="status-dot"></div>
+          <span id="status-text" style="font-size:0.6rem;color:var(--muted)">No key entered</span>
+        </div>
+        <div class="api-note">Your key is used directly in the browser and never stored or transmitted to any server other than Anthropic. Get a key at console.anthropic.com.</div>
+      </div>
     </div>
   </aside>
   <div style="display:flex;flex-direction:column;overflow:hidden;">
     <div class="main-header">
       <div class="main-title">Ask anything about the portfolio</div>
-      <div class="model-badge">llama-3.1-8b · OpenRouter</div>
+      <div class="model-badge">claude-sonnet-4-20250514</div>
     </div>
     <div class="chat-area">
       <div class="messages" id="messages">
         <div class="welcome" id="welcome">
           <div class="welcome-icon">&#8767;</div>
           <div class="welcome-title">Portfolio Intelligence</div>
-          <div class="welcome-sub">Ask me anything about Brian's engineering portfolio -- the repos, the architecture decisions, the strategy documents, or what problems they solve in regulated industries. No login required.</div>
+          <div class="welcome-sub">Ask me anything about Brian's engineering portfolio -- how the repos work, the architecture decisions behind them, how they connect, or what problems they solve in regulated industries.</div>
         </div>
       </div>
       <div class="input-area">
@@ -118,8 +134,7 @@
   </div>
 </div>
 <script>
-const API_KEY = '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';
-const SYSTEM_PROMPT = You are a knowledgeable assistant for Brian Pelow's engineering portfolio at github.com/brianpelow.
+const SYSTEM_PROMPT = `You are a knowledgeable assistant for Brian Pelow's engineering portfolio at github.com/brianpelow.
 
 PORTFOLIO OVERVIEW: 30 repos, 428 passing tests, 20 nightly agents, Python + TypeScript. Every repo has CI, nightly agents, CODEOWNERS, ADRs, CHANGELOG, CONTRIBUTING, LICENSE. Focus: platform engineering, agentic AI, fintech, manufacturing, regulated software.
 
@@ -158,12 +173,13 @@ PLATFORM PATTERNS:
 
 CONTROL PLANE AND GOVERNANCE:
 - orbit-platform: Production Services Control Plane. 6-stage governance framework (Trigger/Validate/Build/Scan/Register/Deploy). Service Registry (FastAPI), Policy Engine (OPA), Pipeline Validator, Onboarding CLI. 5 ADRs. 26 tests.
-- cab-automation: Change Advisory Board automation. Risk scorer 0-100 across 6 factors. AI-generated CAB packages. Mock ServiceNow ITSM. Approval gate FastAPI blocks deploys until approved. Emergency P0 handler. 30 tests.
+- cab-automation: Change Advisory Board automation. Risk scorer 0-100 across 6 factors. AI-generated CAB packages. Mock ServiceNow ITSM. Approval gate FastAPI blocks deploys until approved. Emergency P0 handler. CLI: cab submit/status/emergency. 30 tests.
 - fintech-platform-reference: 8 ADRs, SLO specs for 6 services, runbooks, PCI-DSS/SOX/FFIEC control mappings.
 
 META AND ORCHESTRATION:
 - platform-conductor: Monitors all nightly agents, opens failure issues, weekly Discussions summaries. Governance scorecard Level 5/5, 96.4/100. 22 tests.
 - brianpelow.github.io: Live dashboard with maturity scores, repo catalog, agent activity feed.
+- portfolio-assistant: This app - Claude-powered chatbot about the portfolio.
 
 JUST FOR FUN:
 - vibe-check-cli: Analyzes GitHub repo vibe - chaotic genius, abandoned dreams, solo founder at 2am, etc. 8 tests.
@@ -174,10 +190,29 @@ INDUSTRY CONTEXT: PCI-DSS v4.0, SOX ITGC, FFIEC, ISO 20022 (fintech). IEC 62443,
 
 LIVE URLS: github.com/brianpelow | brianpelow.github.io | brianpelow.github.io/portfolio-assistant
 
-Answer with technical depth and enthusiasm. Make connections between repos. Explain design decisions. Reference the strategy documents when relevant.;
+Answer with technical depth and enthusiasm. Make connections between repos. Explain design decisions. Reference the strategy documents when relevant.`;
 
 let messages = [];
 let isLoading = false;
+
+function updateStatus() {
+  const key = document.getElementById('api-key').value.trim();
+  const dot = document.getElementById('status-dot');
+  const text = document.getElementById('status-text');
+  if (key.startsWith('sk-ant-') && key.length > 20) {
+    dot.classList.add('ready');
+    text.textContent = 'Key ready';
+    text.style.color = 'var(--green)';
+  } else if (key.length > 0) {
+    dot.classList.remove('ready');
+    text.textContent = 'Invalid key format';
+    text.style.color = '#f87171';
+  } else {
+    dot.classList.remove('ready');
+    text.textContent = 'No key entered';
+    text.style.color = 'var(--muted)';
+  }
+}
 
 function ask(el) {
   const input = document.getElementById('chat-input');
@@ -206,25 +241,24 @@ function addMessage(role, content) {
   roleLabel.textContent = role === 'user' ? 'You' : 'Assistant';
   const bubble = document.createElement('div');
   bubble.className = 'msg-bubble';
-  bubble.innerHTML = role === 'assistant' ? formatMarkdown(content) : escapeHtml(content);
+  if (role === 'assistant') {
+    bubble.innerHTML = formatMarkdown(content);
+  } else {
+    bubble.textContent = content;
+  }
   div.appendChild(roleLabel);
   div.appendChild(bubble);
   container.appendChild(div);
   container.scrollTop = container.scrollHeight;
 }
 
-function escapeHtml(text) {
-  return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
 function formatMarkdown(text) {
   return text
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>\</strong>')
-    .replace(/\(.+?)\/g, '<code>\</code>')
-    .replace(/^#{1,3} (.+)$/gm, '<strong>\</strong>')
-    .replace(/^- (.+)$/gm, '<li>\</li>')
-    .replace(/(<li>.*<\/li>\n?)+/g, '<ul>\$&</ul>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`(.+?)`/g, '<code>$1</code>')
+    .replace(/^#{1,3} (.+)$/gm, '<strong>$1</strong>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
     .split('\n\n').map(p => p.trim() ? '<p>' + p + '</p>' : '').join('');
 }
 
@@ -262,8 +296,13 @@ function showError(msg) {
 async function sendMessage() {
   if (isLoading) return;
   const input = document.getElementById('chat-input');
+  const apiKey = document.getElementById('api-key').value.trim();
   const text = input.value.trim();
   if (!text) return;
+  if (!apiKey || !apiKey.startsWith('sk-ant-')) {
+    showError('Please enter a valid Anthropic API key (starting with sk-ant-) in the sidebar.');
+    return;
+  }
   input.value = '';
   autoResize(input);
   isLoading = true;
@@ -272,32 +311,30 @@ async function sendMessage() {
   messages.push({ role: 'user', content: text });
   showTyping();
   try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + API_KEY,
-        'HTTP-Referer': 'https://brianpelow.github.io',
-        'X-Title': 'Brian Pelow Portfolio Assistant',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
       },
       body: JSON.stringify({
-        model: 'meta-llama/llama-3.1-8b-instruct:free',
+        model: 'claude-sonnet-4-20250514',
         max_tokens: 1024,
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          ...messages
-        ],
+        system: SYSTEM_PROMPT,
+        messages: messages,
       }),
     });
     removeTyping();
     if (!response.ok) {
       const err = await response.json();
-      showError('Error: ' + (err.error?.message || response.statusText));
+      showError('API error: ' + (err.error?.message || response.statusText));
       messages.pop();
       return;
     }
     const data = await response.json();
-    const reply = data.choices[0].message.content;
+    const reply = data.content[0].text;
     messages.push({ role: 'assistant', content: reply });
     addMessage('assistant', reply);
   } catch (err) {
