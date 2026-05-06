@@ -76,7 +76,7 @@
     <div>
       <div class="wordmark">Portfolio Assistant</div>
       <div class="name">Brian <em>Pelow</em></div>
-      <div class="tag-line" style="margin-top:0.5rem">Platform engineering Ãƒâ€šÃ‚Â· fintech Ãƒâ€šÃ‚Â· manufacturing Ãƒâ€šÃ‚Â· regulated industries Ãƒâ€šÃ‚Â· agentic systems</div>
+      <div class="tag-line" style="margin-top:0.5rem">Platform engineering ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· fintech ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· manufacturing ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· regulated industries ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· agentic systems</div>
     </div>
     <div class="divider"></div>
     <div class="sidebar-section">
@@ -91,13 +91,13 @@
     </div>
     <div class="divider"></div>
     <div class="sidebar-footer">
-      Powered by AI Ãƒâ€šÃ‚Â· No login required Ãƒâ€šÃ‚Â· Ask anything about Brian's engineering portfolio and strategy documents.
+      Powered by AI ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· No login required ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· Ask anything about Brian's engineering portfolio and strategy documents.
     </div>
   </aside>
   <div style="display:flex;flex-direction:column;overflow:hidden;">
     <div class="main-header">
       <div class="main-title">Ask anything about the portfolio</div>
-      <div class="model-badge">llama-3.1-8b Ãƒâ€šÃ‚Â· OpenRouter</div>
+      <div class="model-badge">llama-3.1-8b ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· OpenRouter</div>
     </div>
     <div class="chat-area">
       <div class="messages" id="messages">
@@ -275,7 +275,7 @@ async function sendMessage() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'openrouter/auto',
+        model: 'openrouter/free',
         max_tokens: 1024,
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
